@@ -11,7 +11,7 @@
     tools:context="mprog.simon.simonilic_pset4.MainActivity">
 
     <Button
-        android:text="Button"
+        android:text="Add"
         android:layout_width="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"

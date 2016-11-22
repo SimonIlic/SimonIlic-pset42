@@ -22,10 +22,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // table columns
     public static final String _ID = "_id";
     public static final String TASK = "task";
+    public static final String CHECKED = "checked";
 
     // Creating table query
     private static final String CREATE_TABLE = "create table " + TABLE_NAME + "(" + _ID
-            + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TASK + " TEXT NOT NULL);";
+            + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TASK + " TEXT NOT NULL, " + CHECKED + " INTEGER DEFAULT 0);";
 
 
     public DatabaseHelper(Context context) {
@@ -50,8 +51,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getWritableDatabase();
 
         ContentValues contentValue = new ContentValues();
-        contentValue.put(DatabaseHelper.TASK, task);
-        database.insert(DatabaseHelper.TABLE_NAME, null, contentValue);
+        contentValue.put(TASK, task);
+        database.insert(TABLE_NAME, null, contentValue);
 
         // close database
         database.close();
@@ -62,8 +63,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getWritableDatabase();
 
         // get a cursor reading out the database
-        String[] columns = new String[] { DatabaseHelper._ID, DatabaseHelper.TASK};
-        Cursor cursor = database.query(DatabaseHelper.TABLE_NAME, columns,
+        String[] columns = new String[] {_ID, TASK, CHECKED};
+        Cursor cursor = database.query(TABLE_NAME, columns,
                 null, null, null, null, null);
         if (cursor != null) {
             cursor.moveToFirst();
@@ -80,10 +81,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DatabaseHelper.TASK, task);
+        contentValues.put(TASK, task);
 
         // update item
-        int i = database.update(DatabaseHelper.TABLE_NAME, contentValues, DatabaseHelper._ID + " = " + _id, null);
+        int i = database.update(TABLE_NAME, contentValues, _ID + " = " + _id, null);
+
+        // close database
+        database.close();
+
+        return i;
+    }
+
+    public int update_checked(long _id, int checked) {
+        // open database
+        SQLiteDatabase database = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(CHECKED, checked);
+
+        // update item
+        int i = database.update(TABLE_NAME, contentValues, _ID + " = " + _id, null);
 
         // close database
         database.close();
@@ -96,7 +113,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getWritableDatabase();
 
         // delete item
-        database.delete(DatabaseHelper.TABLE_NAME, DatabaseHelper._ID + "=" + _id, null);
+        database.delete(TABLE_NAME, _ID + "=" + _id, null);
 
         // close database
         database.close();
