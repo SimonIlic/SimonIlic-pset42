@@ -20,8 +20,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_NAME = "TASKS";
 
     // table columns
-    private static final String _ID = "_id";
-    private static final String TASK = "task";
+    public static final String _ID = "_id";
+    public static final String TASK = "task";
 
     // Creating table query
     private static final String CREATE_TABLE = "create table " + TABLE_NAME + "(" + _ID
