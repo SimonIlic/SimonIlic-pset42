@@ -23,9 +23,9 @@ public class MainActivity extends AppCompatActivity {
     private SimpleCursorAdapter adapter;
     private ListView listView;
 
-    final String[] from = new String[] {DatabaseHelper._ID, DatabaseHelper.TASK};
+    final String[] from = new String[] {DatabaseHelper._ID, DatabaseHelper.TASK, DatabaseHelper.CHECKED};
 
-    final int[] to = new int[] {R.id.id, R.id.task};
+    final int[] to = new int[] {R.id.id, R.id.task, R.id.checkboxImage};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +81,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
+                if (view.getId() == R.id.checkboxImage) {
+                    ImageView imageView = (ImageView) view;
+                    int checked = cursor.getInt(columnIndex);
+
+                    if (checked == 1) {
+                        imageView.setImageDrawable(getDrawable(android.R.drawable.checkbox_on_background));
+                    } else {
+                        Toast.makeText(MainActivity.this, "joe", Toast.LENGTH_SHORT).show();
+                        imageView.setImageDrawable(getDrawable(android.R.drawable.checkbox_off_background));
+                    }
                 checkTask(id);
             }
         });
@@ -100,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
                     if (checked == 1) {
                         imageView.setImageDrawable(getDrawable(android.R.drawable.checkbox_on_background));
                     } else {
+                        Toast.makeText(MainActivity.this, "joe", Toast.LENGTH_SHORT).show();
                         imageView.setImageDrawable(getDrawable(android.R.drawable.checkbox_off_background));
                     }
 
@@ -141,6 +152,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void checkTask(long id) {
-        dbHelper.up
+
+
+
+        //dbHelper.update_checked(id, )
     }
 }

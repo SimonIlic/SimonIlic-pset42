@@ -76,7 +76,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public int update(long _id, String task) {
+    public int update_task(long _id, String task) {
         // open database
         SQLiteDatabase database = this.getWritableDatabase();
 
