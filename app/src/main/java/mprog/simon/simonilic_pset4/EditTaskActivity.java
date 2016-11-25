@@ -50,5 +50,6 @@ public class EditTaskActivity extends Activity {
         Intent home_intent = new Intent(getApplicationContext(), MainActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(home_intent);
+        finish();
     }
 }

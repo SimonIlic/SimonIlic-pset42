@@ -11,7 +11,7 @@
     tools:context="mprog.simon.simonilic_pset4.MainActivity">
 
     <Button
-        android:text="Add"
+        android:text="@string/add_button_text"
         android:layout_width="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
@@ -23,13 +23,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textView"
-        android:text="Your To-Do list" />
+        android:text="@string/to_do_list_message" />
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
-        android:hint="Task"
+        android:hint="@string/new_task_string"
         android:ems="10"
         android:layout_toLeftOf="@id/button"
         android:layout_alignParentBottom="true"

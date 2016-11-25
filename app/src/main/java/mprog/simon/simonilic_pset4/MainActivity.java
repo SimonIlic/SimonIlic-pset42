@@ -138,6 +138,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /** Edit a task
+     * Starts a new activity **/
     private void editTask(long id, View view) {
         TextView taskTextView = (TextView) view.findViewById(R.id.task);
         String task = taskTextView.getText().toString();
