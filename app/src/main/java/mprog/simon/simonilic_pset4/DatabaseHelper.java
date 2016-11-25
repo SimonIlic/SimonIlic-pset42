@@ -65,7 +65,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // get a cursor reading out the database
         String[] columns = new String[] {_ID, TASK, CHECKED};
         Cursor cursor = database.query(TABLE_NAME, columns,
-                null, null, null, null, null);
+                null, null, null, null, CHECKED + ", " + _ID + " DESC");
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -92,9 +92,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return i;
     }
 
-    public int update_checked(long _id, int checked) {
+    public int update_checked(long _id) {
         // open database
         SQLiteDatabase database = this.getWritableDatabase();
+
+        // read out database to check if item is currently checked or not
+        String[] columns = new String[] {CHECKED};
+        Cursor cursor = database.query(TABLE_NAME, columns,
+                _ID + " = " + _id, null, null, null, null);
+
+        if (cursor != null) {
+            cursor.moveToFirst();
+        }
+
+        // flip current checked status
+        int checked = cursor.getInt(0);
+        if (checked == 1) {
+            checked = 0;
+        }
+        else {
+            checked = 1;
+        }
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(CHECKED, checked);

@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseHelper dbHelper;
     private SimpleCursorAdapter adapter;
     private ListView listView;
+    private Cursor db_cursor;
 
     final String[] from = new String[] {DatabaseHelper._ID, DatabaseHelper.TASK, DatabaseHelper.CHECKED};
 
@@ -36,10 +37,10 @@ public class MainActivity extends AppCompatActivity {
         dbHelper = new DatabaseHelper(this);
 
         // get tasks in cursor
-        Cursor cursor = dbHelper.fetch();
+        db_cursor = dbHelper.fetch();
 
         // create list
-        createList(cursor);
+        createList();
     }
 
     public void addTask(View view) {
@@ -52,23 +53,23 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // add new task
+        // add new task in database
         dbHelper.insert(newTask);
-        adapter.notifyDataSetChanged();
+
+        refreshListView();
 
         // empty input field
         editText.setText("");
-
-        // restart activity
-        recreate();
     }
 
-    public void createList(Cursor cursor) {
+    public void createList() {
         // Get ListView object from xml
         listView = (ListView) findViewById(R.id.toDoList);
 
         // define list adapter
-        adapter = new SimpleCursorAdapter(this, R.layout.to_do_list_item, cursor, from, to, 0);
+        adapter = new SimpleCursorAdapter(this, R.layout.to_do_list_item, db_cursor, from, to, 0);
+
+        // set special viewbinder in order to display checkboxes
         setAdapterViewBinder();
         adapter.notifyDataSetChanged();
 
@@ -76,24 +77,12 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
 
         // set on click listener
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                if (view.getId() == R.id.checkboxImage) {
-                    ImageView imageView = (ImageView) view;
-                    int checked = cursor.getInt(columnIndex);
-
-                    if (checked == 1) {
-                        imageView.setImageDrawable(getDrawable(android.R.drawable.checkbox_on_background));
-                    } else {
-                        Toast.makeText(MainActivity.this, "joe", Toast.LENGTH_SHORT).show();
-                        imageView.setImageDrawable(getDrawable(android.R.drawable.checkbox_off_background));
-                    }
-                checkTask(id);
-            }
-        });
+             public void onItemClick(AdapterView<?> parent, View view, int position, long id){
+                 checkTask(id);
+             }
+         });
 
         // Register ListView for context menu, implicitly defining item longclick listener
         registerForContextMenu(listView);
@@ -110,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
                     if (checked == 1) {
                         imageView.setImageDrawable(getDrawable(android.R.drawable.checkbox_on_background));
                     } else {
-                        Toast.makeText(MainActivity.this, "joe", Toast.LENGTH_SHORT).show();
                         imageView.setImageDrawable(getDrawable(android.R.drawable.checkbox_off_background));
                     }
 
@@ -133,6 +121,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
+            case R.id.action_check:
+                checkTask(info.id);
+                return true;
             case R.id.action_edit:
                 //editNote(info.id);
                 return true;
@@ -145,16 +136,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void deleteTask(long id) {
+        // update database
         dbHelper.delete(id);
-        adapter.notifyDataSetChanged();
 
-        recreate();
+        refreshListView();
     }
 
     public void checkTask(long id) {
+        // flip the checked state of task in database
+        dbHelper.update_checked(id);
 
+        refreshListView();
+    }
 
-
-        //dbHelper.update_checked(id, )
+    public void refreshListView() {
+        // update db_cursor
+        db_cursor = dbHelper.fetch();
+        // update the cursor used by adapter
+        adapter.changeCursor(db_cursor);
+        // notify adapter of updated cursor
+        adapter.notifyDataSetChanged();
     }
 }
