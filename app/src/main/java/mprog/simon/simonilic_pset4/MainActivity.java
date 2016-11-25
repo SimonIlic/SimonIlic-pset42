@@ -1,21 +1,19 @@
 package mprog.simon.simonilic_pset4;
 
+import android.content.Intent;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -43,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
         createList();
     }
 
+    /** Add a task **/
     public void addTask(View view) {
         TextView editText = (TextView) findViewById(R.id.editText);
         String newTask = editText.getText().toString();
@@ -62,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         editText.setText("");
     }
 
+    /** Create the listview, fetching data from database and setting the list adapter **/
     public void createList() {
         // Get ListView object from xml
         listView = (ListView) findViewById(R.id.toDoList);
@@ -88,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
         registerForContextMenu(listView);
     }
 
+    /** Set a special viewbinder for the cursor adapter in order to
+     * display checkboxes (imageviews) correctly.**/
     public void setAdapterViewBinder() {
         adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
             @Override
@@ -125,7 +127,8 @@ public class MainActivity extends AppCompatActivity {
                 checkTask(info.id);
                 return true;
             case R.id.action_edit:
-                //editNote(info.id);
+
+                editTask(info.id, info.targetView);
                 return true;
             case R.id.action_delete:
                 deleteTask(info.id);
@@ -135,6 +138,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void editTask(long id, View view) {
+        TextView taskTextView = (TextView) view.findViewById(R.id.task);
+        String task = taskTextView.getText().toString();
+
+        Intent modify_intent = new Intent(getApplicationContext(), EditTaskActivity.class);
+        modify_intent.putExtra("id", id);
+        modify_intent.putExtra("task", task);
+
+        startActivity(modify_intent);
+    }
+
+    /** Deletes a task **/
     private void deleteTask(long id) {
         // update database
         dbHelper.delete(id);
@@ -142,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
         refreshListView();
     }
 
+    /** Flips the 'checked' state of a task **/
     public void checkTask(long id) {
         // flip the checked state of task in database
         dbHelper.update_checked(id);
@@ -149,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
         refreshListView();
     }
 
+    /** Refresh the listView after database was updated **/
     public void refreshListView() {
         // update db_cursor
         db_cursor = dbHelper.fetch();
