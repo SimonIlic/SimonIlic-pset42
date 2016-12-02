@@ -15,7 +15,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     // database information
-    private static final String DB_NAME = "pset4-tasks";
+    private static final String DB_NAME = "pset5-tasks";
     private static final int DB_VERSION = 1;
 
     //table name
@@ -44,6 +44,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
         onCreate(db);
+    }
+
+    public SQLiteDatabase getDatabase(boolean write) {
+        if (write) {
+            return this.getWritableDatabase();
+        }
+        else {
+            return this.getReadableDatabase();
+        }
     }
 
     // CRUD methods
