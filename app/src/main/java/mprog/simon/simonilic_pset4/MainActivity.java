@@ -16,6 +16,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import static java.lang.Integer.parseInt;
+
 public class MainActivity extends AppCompatActivity {
 
     private DatabaseHelper dbHelper;
@@ -35,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
             R.id.id,
             R.id.task,
             R.id.checkboxImage,
-            R.id.item_type
+            R.id.list_indicator
     };
 
     @Override
@@ -105,9 +107,9 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 
              public void onItemClick(AdapterView<?> parent, View view, int position, long id){
-                 TextView typeView = (TextView) view.findViewById(R.id.item_type);
-                 int isList = Integer.parseInt(typeView.getText().toString());
-                 if (isList == 1) {
+                 ImageView typeView = (ImageView) view.findViewById(R.id.list_indicator);
+                 int isList = typeView.getVisibility();
+                 if (isList == View.VISIBLE) {
                      openList(id);
                  }
                  else {
@@ -140,6 +142,20 @@ public class MainActivity extends AppCompatActivity {
                         imageView.setImageDrawable(getDrawable(android.R.drawable.checkbox_on_background));
                     } else {
                         imageView.setImageDrawable(getDrawable(android.R.drawable.checkbox_off_background));
+                    }
+
+                    return true;
+                }
+                else if (view.getId() == R.id.list_indicator) {
+                    ImageView listIndicatorView = (ImageView) view;
+
+                    int type = cursor.getInt(columnIndex);
+                    if (type == 1) {
+                        listIndicatorView.setVisibility(View.VISIBLE);
+                    }
+                    else
+                    {
+                        listIndicatorView.setVisibility(View.INVISIBLE);
                     }
 
                     return true;
@@ -198,8 +214,8 @@ public class MainActivity extends AppCompatActivity {
 
     /** Deletes a task **/
     private void deleteTask(long id) {
-        // update database
-        dbHelper.delete(id);
+        // update database and delete all possible children
+        manager.deleteItem(id, manager.getParent());
 
         refreshListView();
     }

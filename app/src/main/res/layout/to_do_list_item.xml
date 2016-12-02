@@ -32,12 +32,22 @@
         app:srcCompat="@android:drawable/checkbox_off_background"
         android:id="@+id/checkboxImage" />
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        app:srcCompat="@android:drawable/presence_invisible"
+        android:id="@+id/list_indicator" />
+
     <TextView
         android:id="@+id/task"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
         android:layout_toRightOf="@id/checkboxImage"
+        android:layout_toLeftOf="@id/list_indicator"
         android:padding="3dp"
         android:textSize="17sp"
         android:textStyle="bold" />
