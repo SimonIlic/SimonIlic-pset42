@@ -1,5 +1,6 @@
 package mprog.simon.simonilic_pset4;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -21,10 +22,21 @@ public class MainActivity extends AppCompatActivity {
     private SimpleCursorAdapter adapter;
     private ListView listView;
     private Cursor db_cursor;
+    private ToDoManager manager;
 
-    final String[] from = new String[] {DatabaseHelper._ID, DatabaseHelper.TASK, DatabaseHelper.CHECKED};
+    final String[] from = new String[] {
+            DatabaseHelper._ID,
+            DatabaseHelper.TASK,
+            DatabaseHelper.CHECKED,
+            DatabaseHelper.TYPE
+    };
 
-    final int[] to = new int[] {R.id.id, R.id.task, R.id.checkboxImage};
+    final int[] to = new int[] {
+            R.id.id,
+            R.id.task,
+            R.id.checkboxImage,
+            R.id.item_type
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +46,23 @@ public class MainActivity extends AppCompatActivity {
         // initiate database helper
         dbHelper = new DatabaseHelper(this);
 
+        // get ToDoManager
+        manager = ToDoManager.getInstance();
+        manager.initDBHelper(this);
+
         // get tasks in cursor
-        db_cursor = dbHelper.fetch();
+        db_cursor = manager.getListCursor();
 
         // create list
         createList();
+    }
+
+    @Override
+    public void onBackPressed() {
+        // set parent to parents parent
+        manager.setParent(manager.getItemParent(manager.getParent()));
+        refreshListView();
+        Toast.makeText(this, "moved up " + String.valueOf(manager.getParent()), Toast.LENGTH_SHORT).show();
     }
 
     /** Add a task **/
@@ -53,7 +77,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // add new task in database
-        dbHelper.insert(newTask);
+        long parent = manager.getParent();
+        dbHelper.insert(newTask, parent);
 
         refreshListView();
 
@@ -80,12 +105,25 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 
              public void onItemClick(AdapterView<?> parent, View view, int position, long id){
-                 checkTask(id);
+                 TextView typeView = (TextView) view.findViewById(R.id.item_type);
+                 int isList = Integer.parseInt(typeView.getText().toString());
+                 if (isList == 1) {
+                     openList(id);
+                 }
+                 else {
+                     checkTask(id);
+                 }
              }
          });
 
         // Register ListView for context menu, implicitly defining item longclick listener
         registerForContextMenu(listView);
+    }
+
+    private void openList(long id) {
+        manager.setParent(id);
+        Toast.makeText(this, String.valueOf(manager.getParent()), Toast.LENGTH_SHORT).show();
+        refreshListView();
     }
 
     /** Set a special viewbinder for the cursor adapter in order to
@@ -127,8 +165,10 @@ public class MainActivity extends AppCompatActivity {
                 checkTask(info.id);
                 return true;
             case R.id.action_edit:
-
                 editTask(info.id, info.targetView);
+                return true;
+            case R.id.action_make_list:
+                taskToList(info.id);
                 return true;
             case R.id.action_delete:
                 deleteTask(info.id);
@@ -136,6 +176,11 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onContextItemSelected(item);
         }
+    }
+
+    private void taskToList(long id) {
+        manager.upgradeItemToList(id);
+        openList(id);
     }
 
     /** Edit a task
@@ -170,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
     /** Refresh the listView after database was updated **/
     public void refreshListView() {
         // update db_cursor
-        db_cursor = dbHelper.fetch();
+        db_cursor = manager.getListCursor();
         // update the cursor used by adapter
         adapter.changeCursor(db_cursor);
         // notify adapter of updated cursor

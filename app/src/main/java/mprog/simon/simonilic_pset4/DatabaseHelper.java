@@ -19,16 +19,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final int DB_VERSION = 1;
 
     //table name
-    private static final String TABLE_NAME = "TASKS";
+    static final String TABLE_NAME = "TASKS";
 
     // table columns
-    public static final String _ID = "_id";
-    public static final String TASK = "task";
-    public static final String CHECKED = "checked";
+    static final String _ID = "_id";
+    static final String TASK = "task";
+    static final String CHECKED = "checked";
+    static final String PARENT = "parent";
+    static final String TYPE = "is_list";
 
     // Creating table query
-    private static final String CREATE_TABLE = "create table " + TABLE_NAME + "(" + _ID
-            + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TASK + " TEXT NOT NULL, " + CHECKED + " INTEGER DEFAULT 0);";
+    private static final String CREATE_TABLE = "create table " + TABLE_NAME + "("
+            + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TASK + " TEXT NOT NULL, "
+            + CHECKED + " INTEGER DEFAULT 0, " + PARENT + " INTEGER DEFAULT -1, "
+            + TYPE + " INTEGER DEFAULT 0);";
 
 
     public DatabaseHelper(Context context) {
@@ -57,12 +61,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // CRUD methods
 
-    public void insert(String task) {
+    public void insert(String task, long parent) {
         // open database
         SQLiteDatabase database = this.getWritableDatabase();
 
         ContentValues contentValue = new ContentValues();
         contentValue.put(TASK, task);
+        contentValue.put(PARENT, parent);
         database.insert(TABLE_NAME, null, contentValue);
 
         // close database
@@ -74,7 +79,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getWritableDatabase();
 
         // get a cursor reading out the database
-        String[] columns = new String[] {_ID, TASK, CHECKED};
+        String[] columns = new String[] {_ID, TASK, CHECKED, TYPE};
         Cursor cursor = database.query(TABLE_NAME, columns,
                 null, null, null, null, CHECKED + ", " + _ID + " DESC");
         if (cursor != null) {
@@ -133,6 +138,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // close database
         database.close();
+        cursor.close();
 
         return i;
     }
