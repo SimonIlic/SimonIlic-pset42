@@ -129,11 +129,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /** Set a special viewbinder for the cursor adapter in order to
-     * display checkboxes (imageviews) correctly.**/
+     * display checkboxes and list indicators (imageviews) correctly.**/
     public void setAdapterViewBinder() {
         adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
             @Override
             public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+                // display checked task
                 if (view.getId() == R.id.checkboxImage) {
                     ImageView imageView = (ImageView) view;
                     int checked = cursor.getInt(columnIndex);
@@ -146,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
                     return true;
                 }
+                // display list indicator
                 else if (view.getId() == R.id.list_indicator) {
                     ImageView listIndicatorView = (ImageView) view;
 
@@ -194,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /** Promote a task to a list with subitems **/
     private void taskToList(long id) {
         manager.upgradeItemToList(id);
         openList(id);
